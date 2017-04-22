@@ -1,14 +1,24 @@
 import Text.Show.Functions
+import Data.List 
 
 --tipo de dato del cliente esta compuesto por un string que representa el nombre, un int que representa resistencia y una lista para repreentar sus amigos.--
 data Cliente = Cliente {_nombre::String, _resistencia::Int, _amigos::[Cliente], _tragosTomados::[Cliente->Cliente]} deriving (Show) 
 
-
-data Itinerario = Itinerario {_nombreItinerario::String, _duracion::Float, _tragos::[Cliente->Cliente]} deriving (Show) 
-
 --Definimos manualmente que Cliente pertenece a Eq, y definimos la igualdad usando la igualdad de los nombres
 instance Eq Cliente where  
     cliente1 == cliente2 = (_nombre cliente1) == (_nombre cliente2)
+
+data Itinerario = Itinerario {_nombreItinerario::String, _duracion::Float, _tragos::[Cliente->Cliente]} deriving (Show) 
+
+intensidad (Itinerario nombre duracion tragos) = (genericLength tragos) / duracion
+
+--Definimos manualmente que Itinerario pertenece a Eq
+instance Eq Itinerario where  
+    itinerario1 == itinerario2 = (_nombreItinerario itinerario1) == (_nombreItinerario itinerario2)
+
+--Definimos manualmente que Itinerario pertenece a Ord
+instance Ord Itinerario where  
+    itinerario1 `compare` itinerario2 = (intensidad itinerario1) `compare` (intensidad itinerario2)
 
 -- Definimos algunos Clientes
 rodri = Cliente "Rodri" 55 [] [tintico]
@@ -21,6 +31,7 @@ robertoCarlos = Cliente "Roberto Carlos" 165 [] []
 mezclaExplosiva = Itinerario "Mezcla Explosiva" 2.5 [grogXD, grogXD, klusener "Huevo", klusener "Frutilla"]
 itinerarioBasico = Itinerario "Itinerario Basico" 5 [klusener "Huevo", rescatarse 2, klusener "Chocolate"]
 salidaDeAmigos = Itinerario "Salida De Amigos" 1 [soda 1, tintico, (flip hacerseAmigo) robertoCarlos, jarraLoca]
+itinerarioVacio = Itinerario "" 1 []
 
 
 --Definimos comoEsta con guardas
@@ -76,6 +87,13 @@ puedeTomar trago = (>0).(_resistencia.trago)
 -- cualesPuedeTomar aplica puede tomar 
 cualesPuedeTomar cliente = map ((flip puedeTomar) cliente)
 cuantasPuedeTomar  cliente tragos = length (filter (==True) (cualesPuedeTomar cliente tragos))
+
+itinerarioMasIntenso itinerario1 itinerario2 | itinerario1 > itinerario2 = itinerario1
+    | otherwise = itinerario2
+itinerarioMasIntensoEntreMuchos itinerarios = foldr itinerarioMasIntenso itinerarioVacio itinerarios
+realizarItinerario itinerario cliente = tomarTragos cliente (_tragos itinerario)
+realizarItinerarioMasIntensoEntreMuchos itinerarios cliente = realizarItinerario (itinerarioMasIntensoEntreMuchos itinerarios) cliente
+-- realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico]
 
 -- Funcion rescatarse utilizando guardas
 rescatarse tiempo 
