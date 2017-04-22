@@ -30,11 +30,7 @@ agregarAmigo cliente posibleNuevoAmigo
     | puedeHacerseAmigo cliente posibleNuevoAmigo = hacerseAmigo cliente posibleNuevoAmigo
     | otherwise = cliente
 
-grogXD cliente = restarResistencia (_resistencia cliente) cliente
-jarraLoca cliente = (((restarResistenciaAAmigosDeCliente 10).(restarResistencia 10)) cliente)
-klusener gusto cliente = editarResistencia (length gusto) cliente 
-tintico cliente = sumarResistencia (5*(length (_amigos cliente))) cliente 
-soda fuerza (Cliente nombre resistencia amigos bebidasTomadas)  = Cliente (nombrePorSoda nombre fuerza) resistencia amigos bebidasTomadas
+nombrePorSoda nombre fuerza = ['e'] ++ (replicate fuerza 'r') ++ ['p'] ++ nombre
 
 editarResistencia nuevaResistencia (Cliente nombre _ amigos bebidasTomadas) = Cliente nombre nuevaResistencia amigos bebidasTomadas
 sumarResistencia resistenciaASumar cliente = editarResistencia  ((_resistencia cliente)+resistenciaASumar) cliente
@@ -47,9 +43,16 @@ restarResistenciaAAmigos resistenciaARestar = map (restarResistencia resistencia
 aplicarFuncionAAmigosDeCliente funcion (Cliente nombre resistencia amigos bebidasTomadas) = Cliente nombre resistencia (funcion amigos) bebidasTomadas
 editarResistenciaAAmigosDeCliente nuevaResistencia = aplicarFuncionAAmigosDeCliente (editarResistenciaAAmigos nuevaResistencia)
 sumarResistenciaAAmigosDeCliente resistenciaASumar cliente = editarResistenciaAAmigosDeCliente ((_resistencia cliente)+resistenciaASumar) cliente
-restarResistenciaAAmigosDeCliente resistenciaARestar = restarResistenciaAAmigosDeCliente (-resistenciaARestar)
+restarResistenciaAAmigosDeCliente resistenciaARestar = sumarResistenciaAAmigosDeCliente (-resistenciaARestar)
 
-nombrePorSoda nombre fuerza = ['e'] ++ (replicate fuerza 'r') ++ ['p'] ++ nombre
+grogXD cliente = restarResistencia (_resistencia cliente) cliente
+jarraLoca cliente = (((restarResistenciaAAmigosDeCliente 10).(restarResistencia 10)) cliente)
+klusener gusto cliente = editarResistencia (length gusto) cliente 
+tintico cliente = sumarResistencia (5*(length (_amigos cliente))) cliente 
+soda fuerza (Cliente nombre resistencia amigos bebidasTomadas)  = Cliente (nombrePorSoda nombre fuerza) resistencia amigos bebidasTomadas
+
+agregarBebida funcionBebida (Cliente nombre resistencia amigos bebidasTomadas) = Cliente nombre resistencia amigos (funcionBebida:bebidasTomadas)
+tomarBebida funcionBebida = (agregarBebida funcionBebida).funcionBebida
 
 rescatarse tiempo 
     | tiempo > 3 = sumarResistencia 200
