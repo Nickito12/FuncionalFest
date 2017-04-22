@@ -1,7 +1,7 @@
 import Text.Show.Functions
 
 --tipo de dato del cliente esta compuesto por un string que representa el nombre, un int que representa resistencia y una lista para repreentar sus amigos.--
-data Cliente = Cliente {_nombre::String, _resistencia::Int, _amigos::[Cliente], _tragoTomados::[Cliente->Cliente]} deriving (Show) 
+data Cliente = Cliente {_nombre::String, _resistencia::Int, _amigos::[Cliente], _tragosTomados::[Cliente->Cliente]} deriving (Show) 
 
 --Definimos manualmente que Cliente pertenece a Eq, y definimos la igualdad usando la igualdad de los nombres
 instance Eq Cliente where  
@@ -24,7 +24,7 @@ esAmigo cliente posibleAmigo = elem posibleAmigo (_amigos cliente)
 -- Definimos puedeHacerseAmigo viendo que no sea si mismo ni sea amigo
 puedeHacerseAmigo cliente posibleNuevoAmigo  = cliente /= posibleNuevoAmigo && ((.)(.)(.) not esAmigo) cliente posibleNuevoAmigo
 -- Definimos la funcion hacerseAmigo, que agrega un cliente a la lista de amigos de otro cliente
-hacerseAmigo (Cliente nombre resis amigos tragoTomados) nuevoAmigo  = (Cliente nombre resis (nuevoAmigo : amigos) tragoTomados)
+hacerseAmigo (Cliente nombre resis amigos tragosTomados) nuevoAmigo  = (Cliente nombre resis (nuevoAmigo : amigos) tragosTomados)
 --Definimos agregarAmigo
 agregarAmigo cliente posibleNuevoAmigo 
     | puedeHacerseAmigo cliente posibleNuevoAmigo = hacerseAmigo cliente posibleNuevoAmigo
@@ -32,7 +32,7 @@ agregarAmigo cliente posibleNuevoAmigo
 
 nombrePorSoda nombre fuerza = ['e'] ++ (replicate fuerza 'r') ++ ['p'] ++ nombre
 
-editarResistencia nuevaResistencia (Cliente nombre _ amigos tragoTomados) = Cliente nombre nuevaResistencia amigos tragoTomados
+editarResistencia nuevaResistencia (Cliente nombre _ amigos tragosTomados) = Cliente nombre nuevaResistencia amigos tragosTomados
 sumarResistencia resistenciaASumar cliente = editarResistencia  ((_resistencia cliente)+resistenciaASumar) cliente
 restarResistencia resistenciaARestar = sumarResistencia (-resistenciaARestar)
 
@@ -40,7 +40,7 @@ editarResistenciaAAmigos nuevaResistencia = map (editarResistencia nuevaResisten
 sumarResistenciaAAmigos resistenciaASumar = map (sumarResistencia resistenciaASumar)
 restarResistenciaAAmigos resistenciaARestar = map (restarResistencia resistenciaARestar)
 
-aplicarFuncionAAmigosDeCliente funcion (Cliente nombre resistencia amigos tragoTomados) = Cliente nombre resistencia (funcion amigos) tragoTomados
+aplicarFuncionAAmigosDeCliente funcion (Cliente nombre resistencia amigos tragosTomados) = Cliente nombre resistencia (funcion amigos) tragosTomados
 editarResistenciaAAmigosDeCliente nuevaResistencia = aplicarFuncionAAmigosDeCliente (editarResistenciaAAmigos nuevaResistencia)
 sumarResistenciaAAmigosDeCliente resistenciaASumar cliente = editarResistenciaAAmigosDeCliente ((_resistencia cliente)+resistenciaASumar) cliente
 restarResistenciaAAmigosDeCliente resistenciaARestar = sumarResistenciaAAmigosDeCliente (-resistenciaARestar)
@@ -49,11 +49,16 @@ grogXD cliente = restarResistencia (_resistencia cliente) cliente
 jarraLoca cliente = (((restarResistenciaAAmigosDeCliente 10).(restarResistencia 10)) cliente)
 klusener gusto cliente = editarResistencia (length gusto) cliente 
 tintico cliente = sumarResistencia (5*(length (_amigos cliente))) cliente 
-soda fuerza (Cliente nombre resistencia amigos tragoTomados)  = Cliente (nombrePorSoda nombre fuerza) resistencia amigos tragoTomados
+soda fuerza (Cliente nombre resistencia amigos tragosTomados)  = Cliente (nombrePorSoda nombre fuerza) resistencia amigos tragosTomados
 
-agregarTrago funcionTrago (Cliente nombre resistencia amigos tragoTomados) = Cliente nombre resistencia amigos (funcionTrago:tragoTomados)
-tomarTrago funcionTrago = (agregarTrago funcionTrago).funcionTrago
-
+-- agregarTrago solo agrega el trago a la lista de tragosTomados
+agregarTrago funcionTrago (Cliente nombre resistencia amigos tragosTomados) = Cliente nombre resistencia amigos (funcionTrago:tragosTomados)
+-- tomarTrago toma el trago y lo agrega usando agregarTrago
+tomarTrago funcionTrago = ((agregarTrago funcionTrago).funcionTrago)
+-- Aplica tomarTragos sobre cada elemento de tragos, aplicando al trago de mas a la derecha el cliente.
+-- Doy vuelta la funcion tragos asi el primero en aplicarse es el trago de mas a la izquierda
+tomarTragos cliente tragos = foldr tomarTrago cliente (reverse tragos)
+-- Ejemplo: tomarTragos ana [grogXD, grogXD] 
 rescatarse tiempo 
     | tiempo > 3 = sumarResistencia 200
     | otherwise = sumarResistencia 100
