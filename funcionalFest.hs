@@ -15,7 +15,7 @@ intensidad (Itinerario nombre duracion tragos) = (genericLength tragos) / duraci
 
 -- Definimos manualmente que Itinerario pertenece a Eq
 instance Eq Itinerario where  
-    itinerario1 == itinerario2 = (_nombre itinerario1) == (_nombre itinerario2)
+    itinerario1 == itinerario2 = (_nombreItinerario itinerario1) == (_nombreItinerario itinerario2)
 
 -- Definimos manualmente que Itinerario pertenece a Ord
 instance Ord Itinerario where  
@@ -78,7 +78,6 @@ jarraLoca cliente = (((restarResistenciaAAmigosDeCliente 10).(restarResistencia 
 klusener gusto cliente = editarResistencia (length gusto) cliente 
 tintico cliente = sumarResistencia (5*(length (_amigos cliente))) cliente 
 soda fuerza (Cliente nombre resistencia amigos tragosTomados)  = Cliente (nombrePorSoda nombre fuerza) resistencia amigos tragosTomados
-jarraPopular 0 cliente = cliente
 
 -- agregarTrago solo agrega el trago a la lista de tragosTomados
 agregarTrago funcionTrago (Cliente nombre resistencia amigos tragosTomados) = Cliente nombre resistencia amigos (funcionTrago:tragosTomados)
@@ -111,3 +110,67 @@ rescatarse tiempo
 -- Point Free: consultaItinerario1 cliente = klusener "Huevo" (rescatarse 2 (klusener "Chocolate" (jarraLoca cliente))) 
 consultaItinerario1 cliente = ((klusener "Huevo").(rescatarse 2).(klusener "Chocolate").jarraLoca) cliente
 
+
+
+-- Jarra Popular
+
+--Primero hago la funcion agregarAmigos que recibe un cliente y una lista de clientes y agrega los clientes de la lista al cliente primer parametro
+agregarAmigos:: Cliente->[Cliente]->Cliente
+agregarAmigos cliente amigos  = foldl agregarAmigo cliente amigos
+
+-- A continuacion analizo algunos casos particulares de jarraPopular, para luego abstraerme
+
+----jarraPopular 1 cliente = foldr agregarAmigoDeAmigo cliente (_amigos cliente)
+--jarraPopular 1 cliente = agregarAmigoDeAmigos cliente (_amigos cliente)
+
+----agregarAmigosDeAmigo cliente amigo = agregarAmigos cliente (_amigos amigo)
+----agregarAmigosDeAmigo cliente amigo = ((agregarAmigos cliente)._amigos) amigo
+----agregarAmigosDeAmigo cliente amigo = ((.) (.)) agregarAmigos cliente _amigos amigo
+--agregarAmigosDeAmigo cliente = ((.) (.)) agregarAmigos cliente _amigos
+
+----agregarAmigosDeAmigos cliente [] = agregarAmigosDeAmigos cliente (_amigos cliente)
+----agregarAmigosDeAmigos cliente [amigo] = agregarAmigosDeAmigo cliente amigo
+----agregarAmigosDeAmigos cliente (amigo:amigos) = agregarAmigosDeAmigos (agregarAmigosDeAmigo cliente amigo)) amigos
+--agregarAmigosDeAmigos cliente [] = foldr agregarAmigosDeAmigo cliente (_amigos cliente)
+----agregarAmigosDeAmigos cliente amigos = foldr agregarAmigosDeAmigo cliente amigos
+--agregarAmigosDeAmigos cliente = foldr agregarAmigosDeAmigo cliente
+
+
+----jarraPopular 2 cliente = foldl agregarAmigoDeAmigo (foldr agregarAmigoDeAmigos cliente (_amigos cliente)) (_amigos cliente)
+----jarraPopular 2 cliente = foldl agregarAmigoDeAmigo (jarraPopular 1 cliente) (_amigos cliente)
+--jarraPopular 2 cliente = agregarAmigosDeAmigosDeAmigos (jarraPopular 1 cliente) (_amigos cliente)
+
+----agregarAmigosDeAmigosDeAmigo cliente amigo = agregarAmigosDeAmigos cliente (_amigos amigo)
+----agregarAmigosDeAmigosDeAmigo cliente amigo = ((agregarAmigosDeAmigos cliente)._amigos) amigo
+----agregarAmigosDeAmigosDeAmigo cliente amigo = ((.) (.)) agregarAmigosDeAmigos cliente _amigos amigo
+--agregarAmigosDeAmigosDeAmigo cliente = ((.) (.)) agregarAmigosDeAmigos cliente _amigos
+
+----agregarAmigosDeAmigosDeAmigos cliente [] = foldl agregarAmigosDeAmigosDeAmigo cliente (_amigos cliente)
+----agregarAmigosDeAmigosDeAmigos cliente amigos = foldl agregarAmigosDeAmigosDeAmigo cliente amigos
+--agregarAmigosDeAmigosDeAmigos cliente [] = foldl agregarAmigosDeAmigosDeAmigo cliente (_amigos cliente)
+----agregarAmigosDeAmigosDeAmigos cliente amigos = foldl agregarAmigosDeAmigosDeAmigo cliente amigos
+--agregarAmigosDeAmigosDeAmigos cliente = foldl agregarAmigosDeAmigosDeAmigo cliente
+
+-- Hago funciones que generalizen las posibles agregarAmigosdeAmigo y agregarAmigosdeAmigos
+
+agregarAmigosDeAmigoRecur :: Int->Cliente->Cliente->Cliente
+--agregarAmigosDeAmigoRecur 1 cliente amigo = agregarAmigos cliente (_amigos amigo)
+--agregarAmigosDeAmigoRecur 1 cliente amigo = ((.) (.)) agregarAmigos cliente _amigos amigo
+agregarAmigosDeAmigoRecur 1 cliente = ((.) (.)) agregarAmigos cliente _amigos
+--agregarAmigosDeAmigoRecur 2 cliente = ((.) (.)) (agregarAmigosDeAmigosRecur 1) cliente _amigos
+agregarAmigosDeAmigoRecur nivel cliente = ((.) (.)) (agregarAmigosDeAmigosRecur (nivel-1)) cliente _amigos
+
+agregarAmigosDeAmigosRecur :: Int->Cliente->[Cliente]->Cliente
+agregarAmigosDeAmigosRecur 1 cliente [] = foldl (agregarAmigosDeAmigoRecur 1) cliente (_amigos cliente)
+agregarAmigosDeAmigosRecur 1 cliente amigos = foldl (agregarAmigosDeAmigoRecur 1) cliente amigos
+--agregarAmigosDeAmigosRecur 2 cliente [] = foldl (agregarAmigosDeAmigoRecur 2) cliente (_amigos cliente)
+--agregarAmigosDeAmigosRecur 2 cliente amigos = foldl (agregarAmigosDeAmigoRecur 2)  cliente amigos
+agregarAmigosDeAmigosRecur nivel cliente [] = foldl (agregarAmigosDeAmigoRecur nivel) cliente (_amigos cliente)
+agregarAmigosDeAmigosRecur nivel cliente amigos = foldl (agregarAmigosDeAmigoRecur nivel) cliente amigos
+
+-- Hago la funcion jarraPopular usando las funciones que arme
+jarraPopular :: Int->Cliente->Cliente
+jarraPopular 0 cliente = cliente
+jarraPopular 1 cliente = agregarAmigosDeAmigosRecur 1 cliente []
+--jarraPopular 2 cliente = agregarAmigosDeAmigosRecur 2 (jarraPopular 1 cliente) (_amigos cliente)
+jarraPopular espirituosidad cliente = agregarAmigosDeAmigosRecur espirituosidad (jarraPopular (espirituosidad-1) cliente) (_amigos cliente)
