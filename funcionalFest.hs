@@ -6,19 +6,22 @@ data Cliente = Cliente {_nombre::String, _resistencia::Int, _amigos::[Cliente], 
 
 --Definimos manualmente que Cliente pertenece a Eq, y definimos la igualdad usando la igualdad de los nombres
 instance Eq Cliente where  
+    --No es necesario definir /= ya que esta definida como not ==
     cliente1 == cliente2 = (_nombre cliente1) == (_nombre cliente2)
 
 data Itinerario = Itinerario {_nombreItinerario::String, _duracion::Float, _tragos::[Cliente->Cliente]} deriving (Show) 
 
 intensidad (Itinerario nombre duracion tragos) = (genericLength tragos) / duracion
 
---Definimos manualmente que Itinerario pertenece a Eq
+-- Definimos manualmente que Itinerario pertenece a Eq
 instance Eq Itinerario where  
-    itinerario1 == itinerario2 = (_nombreItinerario itinerario1) == (_nombreItinerario itinerario2)
+    itinerario1 == itinerario2 = (_nombre itinerario1) == (_nombre itinerario2)
 
---Definimos manualmente que Itinerario pertenece a Ord
+-- Definimos manualmente que Itinerario pertenece a Ord
 instance Ord Itinerario where  
-    itinerario1 `compare` itinerario2 = (intensidad itinerario1) `compare` (intensidad itinerario2)
+    -- (>) y (<) estan definidos en base a compare, por lo que no hacen falta
+    -- Definimos la comparacion de itinerarios como la comparacion de sus intensidades
+    compare itinerario1 itinerario2 = compare (intensidad itinerario1) (intensidad itinerario2)
 
 -- Definimos algunos Clientes
 rodri = Cliente "Rodri" 55 [] [tintico]
@@ -37,7 +40,7 @@ salidaDeAmigos = Itinerario "Salida De Amigos" 1 [soda 1, tintico, (flip hacerse
 itinerarioVacio = Itinerario "" 1 []
 
 
---Definimos comoEsta con guardas
+-- Definimos comoEsta con guardas
 comoEsta (Cliente _ resistencia amigos _) 
     | resistencia > 50 = "Fresco"
     | length amigos > 1 = "Piola"
@@ -46,11 +49,11 @@ comoEsta (Cliente _ resistencia amigos _)
 -- Definimos esAmigo, que recae en la igualdad de Eq definida por igualdad de nombres
 esAmigo cliente posibleAmigo = elem posibleAmigo (_amigos cliente)
 -- Definimos puedeHacerseAmigo viendo que no sea si mismo ni sea amigo
--- PointFree: puedeHacerseAmigo cliente posibleNuevoAmigo  = cliente /= posibleNuevoAmigo && (not (esAmigo cliente posibleNuevoAmigo))
+-- Point Free: puedeHacerseAmigo cliente posibleNuevoAmigo  = cliente /= posibleNuevoAmigo && (not (esAmigo cliente posibleNuevoAmigo))
 puedeHacerseAmigo cliente posibleNuevoAmigo  = cliente /= posibleNuevoAmigo && ((.)(.)(.) not esAmigo) cliente posibleNuevoAmigo
 -- Definimos la funcion hacerseAmigo, que agrega un cliente a la lista de amigos de otro cliente
 hacerseAmigo (Cliente nombre resis amigos tragosTomados) nuevoAmigo  = (Cliente nombre resis (nuevoAmigo : amigos) tragosTomados)
---Definimos agregarAmigo
+-- Definimos agregarAmigo
 agregarAmigo cliente posibleNuevoAmigo 
     | puedeHacerseAmigo cliente posibleNuevoAmigo = hacerseAmigo cliente posibleNuevoAmigo
     | otherwise = cliente
@@ -104,5 +107,7 @@ rescatarse tiempo
     | tiempo > 3 = sumarResistencia 200
     | otherwise = sumarResistencia 100
 
-consultaItinerario1 cliente = klusener "Huevo" (rescatarse 2 (klusener "Chocolate" (jarraLoca cliente))) 
+
+-- Point Free: consultaItinerario1 cliente = klusener "Huevo" (rescatarse 2 (klusener "Chocolate" (jarraLoca cliente))) 
+consultaItinerario1 cliente = ((klusener "Huevo").(rescatarse 2).(klusener "Chocolate").jarraLoca) cliente
 
