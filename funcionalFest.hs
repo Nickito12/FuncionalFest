@@ -26,6 +26,9 @@ marcos = Cliente "Marcos" 40 [rodri] [klusener "guinda"]
 cristian = Cliente "Cristian" 2 [] []
 ana = Cliente "Ana" 120 [marcos, rodri] [grogXD, jarraLoca]
 robertoCarlos = Cliente "Roberto Carlos" 165 [] []
+chuckNorris = Cliente "Chuck" 1000 [ana] [soda i |i<-[1,2..]]
+-- B: Chuck no puede tomar otro trago(Nunca se alcanzara el ultimo trago tomado de la lista, es un intento de recorrer una lista infinita acotada inferiormente)
+--D: Si, porque Haskell es lazy
 
 -- Definimos algunos Itinerarios
 mezclaExplosiva = Itinerario "Mezcla Explosiva" 2.5 [grogXD, grogXD, klusener "Huevo", klusener "Frutilla"]
@@ -72,6 +75,7 @@ jarraLoca cliente = (((restarResistenciaAAmigosDeCliente 10).(restarResistencia 
 klusener gusto cliente = editarResistencia (length gusto) cliente 
 tintico cliente = sumarResistencia (5*(length (_amigos cliente))) cliente 
 soda fuerza (Cliente nombre resistencia amigos tragosTomados)  = Cliente (nombrePorSoda nombre fuerza) resistencia amigos tragosTomados
+jarraPopular 0 cliente = cliente
 
 -- agregarTrago solo agrega el trago a la lista de tragosTomados
 agregarTrago funcionTrago (Cliente nombre resistencia amigos tragosTomados) = Cliente nombre resistencia amigos (funcionTrago:tragosTomados)
