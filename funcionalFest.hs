@@ -11,9 +11,9 @@ instance Eq Cliente where
 
 data Itinerario = Itinerario {_nombreItinerario::String, _duracion::Float, _tragos::[Cliente->Cliente]} deriving (Show) 
 
-intensidad (Itinerario nombre duracion tragos) = (genericLength tragos) / duracion
+intensidad (Itinerario _ duracion tragos) = (genericLength tragos) / duracion
 
--- Definimos manualmente que Itinerario pertenece a Eq
+-- Definimos manualmente que Itinerario pertenece a Eq (Para luego poder definir que pertenece a Ord)
 instance Eq Itinerario where  
     itinerario1 == itinerario2 = (_nombreItinerario itinerario1) == (_nombreItinerario itinerario2)
 
@@ -35,7 +35,7 @@ chuckNorris = Cliente "Chuck" 1000 [ana] [soda i |i<-[1,2..]]
 
 -- Definimos algunos Itinerarios
 mezclaExplosiva = Itinerario "Mezcla Explosiva" 2.5 [grogXD, grogXD, klusener "Huevo", klusener "Frutilla"]
-itinerarioBasico = Itinerario "Itinerario Basico" 5 [klusener "Huevo", rescatarse 2, klusener "Chocolate"]
+itinerarioBasico = Itinerario "Itinerario Basico" 5 [jarraLoca, klusener "Chocolate", rescatarse 2, klusener "Huevo"]
 salidaDeAmigos = Itinerario "Salida De Amigos" 1 [soda 1, tintico, (flip hacerseAmigo) robertoCarlos, jarraLoca]
 itinerarioVacio = Itinerario "" 1 []
 
@@ -58,7 +58,7 @@ agregarAmigo cliente posibleNuevoAmigo
     | puedeHacerseAmigo cliente posibleNuevoAmigo = hacerseAmigo cliente posibleNuevoAmigo
     | otherwise = cliente
 
-nombrePorSoda nombre fuerza = ['E'] ++ (replicate fuerza 'r') ++ ['p'] ++ nombre
+nombrePorSoda nombre fuerza = ['e'] ++ (replicate fuerza 'r') ++ ['p'] ++ nombre
 
 editarResistencia nuevaResistencia (Cliente nombre _ amigos tragosTomados) = Cliente nombre nuevaResistencia amigos tragosTomados
 sumarResistencia resistenciaASumar cliente = editarResistencia  ((_resistencia cliente)+resistenciaASumar) cliente
@@ -82,10 +82,10 @@ soda fuerza (Cliente nombre resistencia amigos tragosTomados)  = Cliente (nombre
 -- agregarTrago solo agrega el trago a la lista de tragosTomados
 agregarTrago funcionTrago (Cliente nombre resistencia amigos tragosTomados) = Cliente nombre resistencia amigos (funcionTrago:tragosTomados)
 -- tomarTrago toma el trago y lo agrega usando agregarTrago
+--tomarTrago funcionTrago cliente = ((agregarTrago funcionTrago).funcionTrago) cliente
 tomarTrago funcionTrago = ((agregarTrago funcionTrago).funcionTrago)
 -- Aplica tomarTragos sobre cada elemento de tragos, aplicando al trago de mas a la derecha el cliente.
 tomarTragos cliente tragos = foldr tomarTrago cliente tragos
--- Ejemplo: tomarTragos ana [grogXD, grogXD] 
 dameOtro cliente = head (_tragosTomados cliente) cliente
 
 -- puedeTomar devuelve True si la resistencia luego de tomar el trago es mayor a 0 y sino False
@@ -97,9 +97,8 @@ cuantasPuedeTomar  cliente tragos = length (filter (==True) (cualesPuedeTomar cl
 itinerarioMasIntenso itinerario1 itinerario2 | itinerario1 > itinerario2 = itinerario1
     | otherwise = itinerario2
 itinerarioMasIntensoEntreMuchos itinerarios = foldr itinerarioMasIntenso itinerarioVacio itinerarios
-realizarItinerario itinerario cliente = tomarTragos cliente (_tragos itinerario)
-realizarItinerarioMasIntensoEntreMuchos itinerarios cliente = realizarItinerario (itinerarioMasIntensoEntreMuchos itinerarios) cliente
--- realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico]
+realizarItinerario cliente itinerario = tomarTragos cliente (_tragos itinerario)
+realizarItinerarioMasIntensoEntreMuchos cliente itinerarios = realizarItinerario cliente (itinerarioMasIntensoEntreMuchos itinerarios)
 
 -- Funcion rescatarse utilizando guardas
 rescatarse tiempo 
@@ -174,3 +173,29 @@ jarraPopular 0 cliente = cliente
 jarraPopular 1 cliente = agregarAmigosDeAmigosRecur 1 cliente []
 --jarraPopular 2 cliente = agregarAmigosDeAmigosRecur 2 (jarraPopular 1 cliente) (_amigos cliente)
 jarraPopular espirituosidad cliente = agregarAmigosDeAmigosRecur espirituosidad (jarraPopular (espirituosidad-1) cliente) (_amigos cliente)
+
+
+-- intensidad salidaDeAmigos
+--0.6
+-- intensidad mezclaExplosiva
+--1.6
+-- intensidad itinerarioBasico
+--4.0
+
+-- itinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva]
+--salidaDeAmigos
+-- _nombre (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)
+--erprodri
+-- _resistencia (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)
+--50
+-- _amigos (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)
+--robertoCarlos
+
+-- length (_amigos(jarraPopular  0 agregarAmigo robertoCarlos ana))
+--1
+-- length (_amigos(jarraPopular  3 agregarAmigo robertoCarlos ana))
+--3
+-- length (_amigos(jarraPopular  4 (agregarAmigo robertoCarlos (agregarAmigo cristian ana))))
+--4
+
+-- itinerarioMasIntensoEntreMuchos [mezclaExplosiva, itinerarioBasico, salidaDeAmigos]
