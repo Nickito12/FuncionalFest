@@ -34,9 +34,9 @@ chuckNorris = Cliente "Chuck" 1000 [ana] [soda i |i<-[1,2..]]
 --D: Si, porque Haskell es lazy
 
 -- Definimos algunos Itinerarios
-mezclaExplosiva = Itinerario "Mezcla Explosiva" 2.5 [grogXD, grogXD, klusener "Huevo", klusener "Frutilla"]
-itinerarioBasico = Itinerario "Itinerario Basico" 5 [jarraLoca, klusener "Chocolate", rescatarse 2, klusener "Huevo"]
-salidaDeAmigos = Itinerario "Salida De Amigos" 1 [soda 1, (flip hacerseAmigo) robertoCarlos, tintico, jarraLoca]
+mezclaExplosiva = Itinerario "Mezcla Explosiva" 2.5 [klusener "Frutilla", klusener "Huevo", grogXD, grogXD]
+itinerarioBasico = Itinerario "Itinerario Basico" 5 [klusener "Huevo", rescatarse 2, klusener "Chocolate", jarraLoca]
+salidaDeAmigos = Itinerario "Salida De Amigos" 1 [jarraLoca, (flip hacerseAmigo) robertoCarlos, tintico, soda 1]
 itinerarioVacio = Itinerario "" 1 []
 
 
