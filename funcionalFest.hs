@@ -64,14 +64,18 @@ editarResistencia nuevaResistencia (Cliente nombre _ amigos tragosTomados) = Cli
 sumarResistencia resistenciaASumar cliente = editarResistencia  ((_resistencia cliente)+resistenciaASumar) cliente
 restarResistencia resistenciaARestar = sumarResistencia (-resistenciaARestar)
 
+--editarResistenciaAAmigos nuevaResistencia amigos = map (editarResistencia nuevaResistencia) amigos 
 editarResistenciaAAmigos nuevaResistencia = map (editarResistencia nuevaResistencia)
 sumarResistenciaAAmigos resistenciaASumar = map (sumarResistencia resistenciaASumar)
 restarResistenciaAAmigos resistenciaARestar = map (restarResistencia resistenciaARestar)
 
 aplicarFuncionAAmigosDeCliente funcion (Cliente nombre resistencia amigos tragosTomados) = Cliente nombre resistencia (funcion amigos) tragosTomados
+--editarResistenciaAAmigosDeCliente nuevaResistencia cliente = aplicarFuncionAAmigosDeCliente (editarResistenciaAAmigos nuevaResistencia) cliente
 editarResistenciaAAmigosDeCliente nuevaResistencia = aplicarFuncionAAmigosDeCliente (editarResistenciaAAmigos nuevaResistencia)
-sumarResistenciaAAmigosDeCliente resistenciaASumar cliente = editarResistenciaAAmigosDeCliente ((_resistencia cliente)+resistenciaASumar) cliente
-restarResistenciaAAmigosDeCliente resistenciaARestar = sumarResistenciaAAmigosDeCliente (-resistenciaARestar)
+--sumarResistenciaAAmigosDeCliente resistenciaASumar cliente = aplicarFuncionAAmigosDeCliente (editarResistenciaAAmigos resistenciaASumar) cliente
+sumarResistenciaAAmigosDeCliente resistenciaASumar = aplicarFuncionAAmigosDeCliente (sumarResistenciaAAmigos resistenciaASumar)
+--restarResistenciaAAmigosDeCliente resistenciaARestar cliente = aplicarFuncionAAmigosDeCliente (restarResistenciaAAmigos resistenciaARestar) cliente
+restarResistenciaAAmigosDeCliente resistenciaARestar = aplicarFuncionAAmigosDeCliente (restarResistenciaAAmigos resistenciaARestar)
 
 grogXD cliente = restarResistencia (_resistencia cliente) cliente
 jarraLoca cliente = (((restarResistenciaAAmigosDeCliente 10).(restarResistencia 10)) cliente)
@@ -218,7 +222,7 @@ jarraPopular espirituosidad cliente = agregarAmigosDeAmigosRecur espirituosidad 
 -- _resistencia (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)
 --45
 -- _resistencia (head (_amigos (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)))
---165
+--155
 -- length (_tragosTomados (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri))
 --5
 
@@ -238,7 +242,7 @@ jarraPopular espirituosidad cliente = agregarAmigosDeAmigosRecur espirituosidad 
 -- _nombre (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)
 --erprodri
 -- _resistencia (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)
---50
+--45
 -- itinerarioMasIntensoEntreMuchos [mezclaExplosiva, itinerarioBasico, salidaDeAmigos]
 --salidaDeAmigos
 
