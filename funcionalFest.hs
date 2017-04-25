@@ -31,7 +31,7 @@ ana = Cliente "Ana" 120 [marcos, rodri] []
 robertoCarlos = Cliente "Roberto Carlos" 165 [] []
 chuckNorris = Cliente "Chuck" 1000 [ana] [soda i |i<-[1,2..]]
 -- B: Chuck no puede tomar otro trago(Nunca se alcanzara el ultimo trago tomado de la lista, es un intento de recorrer una lista infinita acotada inferiormente)
---D: Si, porque Haskell es lazy
+--D: Si, porque Haskell es lazy(perezoso) y no evalua la expresion hasta que lo necesite
 
 -- Definimos algunos Itinerarios
 mezclaExplosiva = Itinerario "Mezcla Explosiva" 2.5 [klusener "Frutilla", klusener "Huevo", grogXD, grogXD]
@@ -126,39 +126,41 @@ consultaItinerario1 cliente = ((klusener "Huevo").(rescatarse 2).(klusener "Choc
 agregarAmigos:: Cliente->[Cliente]->Cliente
 agregarAmigos cliente amigos  = foldl agregarAmigo cliente amigos
 
+{-
 -- A continuacion analizo algunos casos particulares de jarraPopular, para luego abstraerme
 
-----jarraPopular 1 cliente = foldr agregarAmigoDeAmigo cliente (_amigos cliente)
---jarraPopular 1 cliente = agregarAmigoDeAmigos cliente (_amigos cliente)
+--jarraPopular 1 cliente = foldr agregarAmigoDeAmigo cliente (_amigos cliente)
+jarraPopular 1 cliente = agregarAmigoDeAmigos cliente (_amigos cliente)
 
-----agregarAmigosDeAmigo cliente amigo = agregarAmigos cliente (_amigos amigo)
-----agregarAmigosDeAmigo cliente amigo = ((agregarAmigos cliente)._amigos) amigo
-----agregarAmigosDeAmigo cliente amigo = ((.) (.)) agregarAmigos cliente _amigos amigo
---agregarAmigosDeAmigo cliente = ((.) (.)) agregarAmigos cliente _amigos
+--agregarAmigosDeAmigo cliente amigo = agregarAmigos cliente (_amigos amigo)
+--agregarAmigosDeAmigo cliente amigo = ((agregarAmigos cliente)._amigos) amigo
+--agregarAmigosDeAmigo cliente amigo = ((.) (.)) agregarAmigos cliente _amigos amigo
+agregarAmigosDeAmigo cliente = ((.) (.)) agregarAmigos cliente _amigos
 
-----agregarAmigosDeAmigos cliente [] = agregarAmigosDeAmigos cliente (_amigos cliente)
-----agregarAmigosDeAmigos cliente [amigo] = agregarAmigosDeAmigo cliente amigo
-----agregarAmigosDeAmigos cliente (amigo:amigos) = agregarAmigosDeAmigos (agregarAmigosDeAmigo cliente amigo)) amigos
---agregarAmigosDeAmigos cliente [] = foldr agregarAmigosDeAmigo cliente (_amigos cliente)
-----agregarAmigosDeAmigos cliente amigos = foldr agregarAmigosDeAmigo cliente amigos
---agregarAmigosDeAmigos cliente = foldr agregarAmigosDeAmigo cliente
+--agregarAmigosDeAmigos cliente [] = agregarAmigosDeAmigos cliente (_amigos cliente)
+--agregarAmigosDeAmigos cliente [amigo] = agregarAmigosDeAmigo cliente amigo
+--agregarAmigosDeAmigos cliente (amigo:amigos) = agregarAmigosDeAmigos (agregarAmigosDeAmigo cliente amigo)) amigos
+agregarAmigosDeAmigos cliente [] = foldr agregarAmigosDeAmigo cliente (_amigos cliente)
+--agregarAmigosDeAmigos cliente amigos = foldr agregarAmigosDeAmigo cliente amigos
+agregarAmigosDeAmigos cliente = foldr agregarAmigosDeAmigo cliente
 
 
-----jarraPopular 2 cliente = foldl agregarAmigoDeAmigo (foldr agregarAmigoDeAmigos cliente (_amigos cliente)) (_amigos cliente)
-----jarraPopular 2 cliente = foldl agregarAmigoDeAmigo (jarraPopular 1 cliente) (_amigos cliente)
---jarraPopular 2 cliente = agregarAmigosDeAmigosDeAmigos (jarraPopular 1 cliente) (_amigos cliente)
+--jarraPopular 2 cliente = foldl agregarAmigoDeAmigo (foldr agregarAmigoDeAmigos cliente (_amigos cliente)) (_amigos cliente)
+--jarraPopular 2 cliente = foldl agregarAmigoDeAmigo (jarraPopular 1 cliente) (_amigos cliente)
+jarraPopular 2 cliente = agregarAmigosDeAmigosDeAmigos (jarraPopular 1 cliente) (_amigos cliente)
 
-----agregarAmigosDeAmigosDeAmigo cliente amigo = agregarAmigosDeAmigos cliente (_amigos amigo)
-----agregarAmigosDeAmigosDeAmigo cliente amigo = ((agregarAmigosDeAmigos cliente)._amigos) amigo
-----agregarAmigosDeAmigosDeAmigo cliente amigo = ((.) (.)) agregarAmigosDeAmigos cliente _amigos amigo
---agregarAmigosDeAmigosDeAmigo cliente = ((.) (.)) agregarAmigosDeAmigos cliente _amigos
+--agregarAmigosDeAmigosDeAmigo cliente amigo = agregarAmigosDeAmigos cliente (_amigos amigo)
+--agregarAmigosDeAmigosDeAmigo cliente amigo = ((agregarAmigosDeAmigos cliente)._amigos) amigo
+--agregarAmigosDeAmigosDeAmigo cliente amigo = ((.) (.)) agregarAmigosDeAmigos cliente _amigos amigo
+agregarAmigosDeAmigosDeAmigo cliente = ((.) (.)) agregarAmigosDeAmigos cliente _amigos
 
-----agregarAmigosDeAmigosDeAmigos cliente [] = foldl agregarAmigosDeAmigosDeAmigo cliente (_amigos cliente)
-----agregarAmigosDeAmigosDeAmigos cliente amigos = foldl agregarAmigosDeAmigosDeAmigo cliente amigos
 --agregarAmigosDeAmigosDeAmigos cliente [] = foldl agregarAmigosDeAmigosDeAmigo cliente (_amigos cliente)
-----agregarAmigosDeAmigosDeAmigos cliente amigos = foldl agregarAmigosDeAmigosDeAmigo cliente amigos
---agregarAmigosDeAmigosDeAmigos cliente = foldl agregarAmigosDeAmigosDeAmigo cliente
+--agregarAmigosDeAmigosDeAmigos cliente amigos = foldl agregarAmigosDeAmigosDeAmigo cliente amigos
+agregarAmigosDeAmigosDeAmigos cliente [] = foldl agregarAmigosDeAmigosDeAmigo cliente (_amigos cliente)
+--agregarAmigosDeAmigosDeAmigos cliente amigos = foldl agregarAmigosDeAmigosDeAmigo cliente amigos
+agregarAmigosDeAmigosDeAmigos cliente = foldl agregarAmigosDeAmigosDeAmigo cliente
 
+-}
 -- Hago funciones que generalizen las posibles agregarAmigosdeAmigo y agregarAmigosdeAmigos
 
 agregarAmigosDeAmigoRecur :: Int->Cliente->Cliente->Cliente
@@ -184,72 +186,77 @@ jarraPopular 1 cliente = agregarAmigosDeAmigosRecur 1 cliente []
 jarraPopular espirituosidad cliente = agregarAmigosDeAmigosRecur espirituosidad (jarraPopular (espirituosidad-1) cliente) (_amigos cliente)
 
 
--- ****** Punto 1b
+{-
+Casos de Prueba
+
+****** Punto 1b
 -- length (_tragosTomados (tomarTrago (soda 3) marcos))
---2
+2
 -- _resistencia (tomarTrago (soda 3) marcos)
---4
+4
 
--- ****** Punto 1c
+****** Punto 1c
 -- _nombre (tomarTrago (soda 2) (tomarTrago (soda 1) rodri))
---"errperpRodri"
+"errperpRodri"
 -- _resistencia (tomarTrago (jarraLoca) (tomarTrago (tintico) (tomarTrago (klusener "Huevo") marcos)))
---30
+30
 -- length (_tragosTomados (tomarTrago (jarraLoca) (tomarTrago (tintico) (tomarTrago (klusener "Huevo") marcos))))
---4
+4
 
--- ****** Punto 1d
+****** Punto 1d
 -- dameOtro ana
---Exception: Prelude.head: empty list
+Exception: Prelude.head: empty list
 -- length (_tragosTomados (dameOtro marcos))
---1
+1
 -- _resistencia (dameOtro marcos)
---34
+34
 -- length (_tragosTomados (tomarTrago (soda 1) rodri))
---2
+2
 -- _nombre (tomarTrago (soda 1) rodri)
---"erpRodri"
+"erpRodri"
 
--- ****** Punto 2b
+****** Punto 2b
 -- cuantasPuedeTomar rodri [grogXD, tintico, klusener "Frutilla"]
---2
+2
 
--- ****** Punto 3b
+****** Punto 3b
 -- length (_amigos (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri))
---1
+1
 -- _nombre (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)
---"erpRodri"
+"erpRodri"
 -- _resistencia (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)
---45
+45
 -- _resistencia (head (_amigos (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)))
---155
+155
 -- length (_tragosTomados (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri))
---5
+5
 
--- ****** Punto 4a
+****** Punto 4a
 -- intensidad salidaDeAmigos
---0.6
+0.6
 -- intensidad mezclaExplosiva
---1.6
+1.6
 -- intensidad itinerarioBasico
---4.0
+4.0
 
--- ****** Punto 4b
+****** Punto 4b
 -- length (_amigos (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri))
---1
+1
 -- _nombre (head (_amigos (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)))
---"Roberto Carlos"
+"Roberto Carlos"
 -- _nombre (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)
---erprodri
+erprodri
 -- _resistencia (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)
---45
+45
 -- itinerarioMasIntensoEntreMuchos [mezclaExplosiva, itinerarioBasico, salidaDeAmigos]
---salidaDeAmigos
+salidaDeAmigos
 
--- ****** Punto 6
+****** Punto 6
 -- length (_amigos(jarraPopular  0 agregarAmigo robertoCarlos ana))
---1
+1
 -- length (_amigos(jarraPopular  3 agregarAmigo robertoCarlos ana))
---3
+3
 -- length (_amigos(jarraPopular  4 (agregarAmigo robertoCarlos (agregarAmigo cristian ana))))
---4
+4
+
+-}
