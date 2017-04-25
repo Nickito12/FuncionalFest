@@ -58,10 +58,13 @@ agregarAmigo cliente posibleNuevoAmigo
     | puedeHacerseAmigo cliente posibleNuevoAmigo = hacerseAmigo cliente posibleNuevoAmigo
     | otherwise = cliente
 
-nombrePorSoda nombre fuerza = ['e'] ++ (replicate fuerza 'r') ++ ['p'] ++ nombre
+--nombrePorSoda fuerza nombre = ['e'] ++ (replicate fuerza 'r') ++ ['p'] ++ nombre
+--nombrePorSoda fuerza nombre = (++) (['e'] ++ (replicate fuerza 'r') ++ ['p']) nombre
+nombrePorSoda fuerza = (++) (['e'] ++ (replicate fuerza 'r') ++ ['p'])
 
 editarResistencia nuevaResistencia (Cliente nombre _ amigos tragosTomados) = Cliente nombre nuevaResistencia amigos tragosTomados
 sumarResistencia resistenciaASumar cliente = editarResistencia  ((_resistencia cliente)+resistenciaASumar) cliente
+--restarResistencia resistenciaARestar cliente = sumarResistencia (-resistenciaARestar) cliente
 restarResistencia resistenciaARestar = sumarResistencia (-resistenciaARestar)
 
 --editarResistenciaAAmigos nuevaResistencia amigos = map (editarResistencia nuevaResistencia) amigos 
@@ -81,7 +84,7 @@ grogXD cliente = restarResistencia (_resistencia cliente) cliente
 jarraLoca cliente = (((restarResistenciaAAmigosDeCliente 10).(restarResistencia 10)) cliente)
 klusener gusto cliente = restarResistencia (length gusto) cliente 
 tintico cliente = sumarResistencia (5*(length (_amigos cliente))) cliente 
-soda fuerza (Cliente nombre resistencia amigos tragosTomados)  = Cliente (nombrePorSoda nombre fuerza) resistencia amigos tragosTomados
+soda fuerza (Cliente nombre resistencia amigos tragosTomados)  = Cliente (nombrePorSoda fuerza nombre) resistencia amigos tragosTomados
 
 -- agregarTrago solo agrega el trago a la lista de tragosTomados
 agregarTrago funcionTrago (Cliente nombre resistencia amigos tragosTomados) = Cliente nombre resistencia amigos (funcionTrago:tragosTomados)
@@ -100,11 +103,13 @@ cuantasPuedeTomar cliente tragos = length (filter (==True) (cualesPuedeTomar cli
 
 itinerarioMasIntenso itinerario1 itinerario2 | itinerario1 > itinerario2 = itinerario1
     | otherwise = itinerario2
-itinerarioMasIntensoEntreMuchos itinerarios = foldr itinerarioMasIntenso itinerarioVacio itinerarios
+itinerarioMasIntensoEntreMuchos::[Itinerario]->Itinerario
+--itinerarioMasIntensoEntreMuchos itinerarios = foldr itinerarioMasIntenso itinerarioVacio itinerarios
+itinerarioMasIntensoEntreMuchos = foldr itinerarioMasIntenso itinerarioVacio
 --realizarItinerario itinerario cliente = tomarTragos (_tragos itinerario) cliente
-realizarItinerario itinerario = tomarTragos (_tragos itinerario)
+realizarItinerario itinerario = (tomarTragos._tragos) itinerario
 --realizarItinerarioMasIntensoEntreMuchos itinerarios cliente = realizarItinerario (itinerarioMasIntensoEntreMuchos itinerarios) cliente
-realizarItinerarioMasIntensoEntreMuchos itinerarios cliente = realizarItinerario (itinerarioMasIntensoEntreMuchos itinerarios) cliente
+realizarItinerarioMasIntensoEntreMuchos itinerarios = realizarItinerario (itinerarioMasIntensoEntreMuchos itinerarios)
 
 -- Funcion rescatarse utilizando guardas
 --rescatarse tiempo cliente 
@@ -116,7 +121,8 @@ rescatarse tiempo
 
 
 -- Point Free: consultaItinerario1 cliente = klusener "Huevo" (rescatarse 2 (klusener "Chocolate" (jarraLoca cliente))) 
-consultaItinerario1 cliente = ((klusener "Huevo").(rescatarse 2).(klusener "Chocolate").jarraLoca) cliente
+--consultaItinerario1 cliente = ((klusener "Huevo").(rescatarse 2).(klusener "Chocolate").jarraLoca) cliente
+consultaItinerario1 = ((klusener "Huevo").(rescatarse 2).(klusener "Chocolate").jarraLoca)
 
 
 
@@ -124,7 +130,8 @@ consultaItinerario1 cliente = ((klusener "Huevo").(rescatarse 2).(klusener "Choc
 
 --Primero hago la funcion agregarAmigos que recibe un cliente y una lista de clientes y agrega los clientes de la lista al cliente primer parametro
 agregarAmigos:: Cliente->[Cliente]->Cliente
-agregarAmigos cliente amigos  = foldl agregarAmigo cliente amigos
+--agregarAmigos cliente amigos  = foldl agregarAmigo cliente amigos
+agregarAmigos cliente = foldl agregarAmigo cliente
 
 {-
 -- A continuacion analizo algunos casos particulares de jarraPopular, para luego abstraerme
@@ -161,7 +168,7 @@ agregarAmigosDeAmigosDeAmigos cliente [] = foldl agregarAmigosDeAmigosDeAmigo cl
 agregarAmigosDeAmigosDeAmigos cliente = foldl agregarAmigosDeAmigosDeAmigo cliente
 
 -}
--- Hago funciones que generalizen las posibles agregarAmigosdeAmigo y agregarAmigosdeAmigos
+-- Hago funciones que generalizen las posibles funciones agregarAmigosdeAmigo... y agregarAmigosdeAmigos...
 
 agregarAmigosDeAmigoRecur :: Int->Cliente->Cliente->Cliente
 --agregarAmigosDeAmigoRecur 1 cliente amigo = agregarAmigos cliente (_amigos amigo)
@@ -183,7 +190,8 @@ jarraPopular :: Int->Cliente->Cliente
 jarraPopular 0 cliente = cliente
 jarraPopular 1 cliente = agregarAmigosDeAmigosRecur 1 cliente []
 --jarraPopular 2 cliente = agregarAmigosDeAmigosRecur 2 (jarraPopular 1 cliente) (_amigos cliente)
-jarraPopular espirituosidad cliente = agregarAmigosDeAmigosRecur espirituosidad (jarraPopular (espirituosidad-1) cliente) (_amigos cliente)
+--jarraPopular espirituosidad cliente = agregarAmigosDeAmigosRecur espirituosidad (jarraPopular (espirituosidad-1) cliente) (_amigos cliente)
+jarraPopular espirituosidad cliente = (agregarAmigosDeAmigosRecur espirituosidad (jarraPopular (espirituosidad-1) cliente)._amigos) cliente
 
 
 {-
