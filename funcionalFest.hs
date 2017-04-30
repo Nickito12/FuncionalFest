@@ -47,7 +47,8 @@ comoEsta (Cliente _ resistencia amigos _)
     | otherwise = "Duro"
 
 -- Definimos esAmigo, que recae en la igualdad de Eq definida por igualdad de nombres
-esAmigo cliente posibleAmigo = elem posibleAmigo (_amigos cliente)
+--esAmigo cliente posibleAmigo = elem posibleAmigo (_amigos cliente)
+esAmigo cliente posibleAmigo = ((elem posibleAmigo)._amigos) cliente
 -- Definimos puedeHacerseAmigo viendo que no sea si mismo ni sea amigo
 --puedeHacerseAmigo cliente posibleNuevoAmigo  = cliente /= posibleNuevoAmigo && (not (esAmigo cliente posibleNuevoAmigo))
 puedeHacerseAmigo cliente posibleNuevoAmigo  = cliente /= posibleNuevoAmigo && ((.)(.)(.) not esAmigo) cliente posibleNuevoAmigo
@@ -71,6 +72,7 @@ agregarAmigo cliente posibleNuevoAmigo
 nombrePorSoda = (( (++).( (( (++) "e").(++"p") )) ).((flip replicate) 'r'))
 --Nota: al usar ++"p" con notacion infija "p" es el segundo argumento, al usar (++) "e" con notacion normal "e" es el primer argumento
 
+editarNombre nuevoNombre (Cliente _ resistencia amigos tragosTomados) = Cliente nuevoNombre resistencia amigos tragosTomados
 editarResistencia nuevaResistencia (Cliente nombre _ amigos tragosTomados) = Cliente nombre nuevaResistencia amigos tragosTomados
 --sumarResistencia resistenciaASumar cliente = editarResistencia  ((_resistencia cliente)+resistenciaASumar) cliente
 --sumarResistencia resistenciaASumar cliente = editarResistencia  (((+resistenciaASumar)._resistencia) cliente) cliente
@@ -110,15 +112,22 @@ restarResistenciaAAmigosDeCliente = (aplicarFuncionAAmigosDeCliente.restarResist
 
 --grogXD cliente = restarResistencia (_resistencia cliente) cliente
 grogXD cliente = (restarResistencia._resistencia) cliente cliente
+
 --jarraLoca cliente = ((restarResistenciaAAmigosDeCliente 10).(restarResistencia 10)) cliente
 jarraLoca = ((restarResistenciaAAmigosDeCliente 10).(restarResistencia 10))
+
 --klusener gusto cliente = restarResistencia (length gusto) cliente 
 --klusener gusto = restarResistencia (length gusto)
 --klusener gusto = (restarResistencia.length) gusto
-klusener = (restarResistencia.length)
+klusener = restarResistencia.length
+
 --tintico cliente = sumarResistencia (5*(length (_amigos cliente))) cliente 
-tintico cliente = sumarResistencia ( ((5*).length._amigos) cliente) cliente 
-soda fuerza (Cliente nombre resistencia amigos tragosTomados)  = Cliente (nombrePorSoda fuerza nombre) resistencia amigos tragosTomados
+--tintico cliente = sumarResistencia ( ((5*).length._amigos) cliente) cliente 
+tintico cliente = (sumarResistencia.(5*).length._amigos) cliente cliente 
+
+--soda fuerza cliente = editarNombre (nombrePorSoda fuerza (_nombre cliente)) cliente
+--soda fuerza cliente = editarNombre (((nombrePorSoda fuerza). _nombre) cliente) cliente
+soda fuerza cliente = (editarNombre.(nombrePorSoda fuerza)._nombre) cliente cliente
 
 -- agregarTrago solo agrega el trago a la lista de tragosTomados
 agregarTrago funcionTrago (Cliente nombre resistencia amigos tragosTomados) = Cliente nombre resistencia amigos (funcionTrago:tragosTomados)
@@ -127,11 +136,15 @@ agregarTrago funcionTrago (Cliente nombre resistencia amigos tragosTomados) = Cl
 tomarTrago funcionTrago = ((agregarTrago funcionTrago).funcionTrago)
 -- Aplica tomarTragos sobre cada elemento de tragos, aplicando al trago de mas a la derecha el cliente.
 tomarTragos tragos cliente = foldr tomarTrago cliente tragos
-dameOtro cliente = head (_tragosTomados cliente) cliente
+--dameOtro cliente = head (_tragosTomados cliente) cliente
+dameOtro cliente = (head._tragosTomados) cliente cliente
 
--- puedeTomar devuelve True si la resistencia luego de tomar el trago es mayor a 0 y sino False
+--puedeTomar devuelve True si la resistencia luego de tomar el trago es mayor a 0 y sino False
 --puedeTomar trago cliente = (>0).(_resistencia.trago) cliente
-puedeTomar trago = (>0).(_resistencia.trago)
+--puedeTomar trago = (>0).(_resistencia.trago)
+--puedeTomar trago = (>0)._resistencia.trago
+--puedeTomar trago = (.) ((>0)._resistencia) trago
+puedeTomar = (.) ((>0)._resistencia)
 -- cualesPuedeTomar aplica puede tomar 
 --cualesPuedeTomar cliente tragos = map ((flip puedeTomar) cliente) tragos
 --cualesPuedeTomar cliente = map ((flip puedeTomar) cliente)
@@ -256,7 +269,7 @@ Casos de Prueba
 -- length (_tragosTomados (tomarTrago (soda 3) marcos))
 2
 -- _resistencia (tomarTrago (soda 3) marcos)
-4
+40
 
 ****** Punto 1c
 -- _nombre (tomarTrago (soda 2) (tomarTrago (soda 1) rodri))
