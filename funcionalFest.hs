@@ -49,7 +49,7 @@ comoEsta (Cliente _ resistencia amigos _)
 -- Definimos esAmigo, que recae en la igualdad de Eq definida por igualdad de nombres
 esAmigo cliente posibleAmigo = elem posibleAmigo (_amigos cliente)
 -- Definimos puedeHacerseAmigo viendo que no sea si mismo ni sea amigo
--- Point Free: puedeHacerseAmigo cliente posibleNuevoAmigo  = cliente /= posibleNuevoAmigo && (not (esAmigo cliente posibleNuevoAmigo))
+--puedeHacerseAmigo cliente posibleNuevoAmigo  = cliente /= posibleNuevoAmigo && (not (esAmigo cliente posibleNuevoAmigo))
 puedeHacerseAmigo cliente posibleNuevoAmigo  = cliente /= posibleNuevoAmigo && ((.)(.)(.) not esAmigo) cliente posibleNuevoAmigo
 -- Definimos la funcion hacerseAmigo, que agrega un cliente a la lista de amigos de otro cliente
 hacerseAmigo (Cliente nombre resis amigos tragosTomados) nuevoAmigo  = (Cliente nombre resis (nuevoAmigo : amigos) tragosTomados)
@@ -175,7 +175,7 @@ rescatarse = (sumarResistencia.(max 100).(200*).((flip (-)) 3))
 --Nota: el flip (-) es necesario porque (-3) es el numero -3
 
 
--- Point Free: consultaItinerario1 cliente = klusener "Huevo" (rescatarse 2 (klusener "Chocolate" (jarraLoca cliente))) 
+--consultaItinerario1 cliente = klusener "Huevo" (rescatarse 2 (klusener "Chocolate" (jarraLoca cliente))) 
 --consultaItinerario1 cliente = ((klusener "Huevo").(rescatarse 2).(klusener "Chocolate").jarraLoca) cliente
 consultaItinerario1 = ((klusener "Huevo").(rescatarse 2).(klusener "Chocolate").jarraLoca)
 
