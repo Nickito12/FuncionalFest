@@ -60,30 +60,61 @@ agregarAmigo cliente posibleNuevoAmigo
 
 --nombrePorSoda fuerza nombre = ['e'] ++ (replicate fuerza 'r') ++ ['p'] ++ nombre
 --nombrePorSoda fuerza nombre = (++) (['e'] ++ (replicate fuerza 'r') ++ ['p']) nombre
-nombrePorSoda fuerza = (++) (['e'] ++ (replicate fuerza 'r') ++ ['p'])
+--nombrePorSoda fuerza = (++) (['e'] ++ (replicate fuerza 'r') ++ ['p'])
+--nombrePorSoda fuerza = (++) ((++) ['e'] ((++) (replicate fuerza 'r') ['p']))
+--nombrePorSoda fuerza = (++) ((++) ['e'] ((++ ['p']) (replicate fuerza 'r')))
+--nombrePorSoda fuerza = (++) ( (((++) ['e']).(++['p'])) (replicate fuerza 'r'))
+--nombrePorSoda fuerza = (++) ( (((++) "e").(++"p")) (replicate fuerza 'r'))
+--nombrePorSoda fuerza = ( (++).( (( (++) "e").(++"p") )) ) (replicate fuerza 'r')
+--nombrePorSoda fuerza = ( (++).( (( (++) "e").(++"p") )) ) ((flip replicate) 'r' fuerza)
+--nombrePorSoda fuerza = (( (++).( (( (++) "e").(++"p") )) ).((flip replicate) 'r')) fuerza
+nombrePorSoda = (( (++).( (( (++) "e").(++"p") )) ).((flip replicate) 'r'))
+--Nota: al usar ++"p" con notacion infija "p" es el segundo argumento, al usar (++) "e" con notacion normal "e" es el primer argumento
 
 editarResistencia nuevaResistencia (Cliente nombre _ amigos tragosTomados) = Cliente nombre nuevaResistencia amigos tragosTomados
-sumarResistencia resistenciaASumar cliente = editarResistencia  ((_resistencia cliente)+resistenciaASumar) cliente
+--sumarResistencia resistenciaASumar cliente = editarResistencia  ((_resistencia cliente)+resistenciaASumar) cliente
+--sumarResistencia resistenciaASumar cliente = editarResistencia  (((+resistenciaASumar)._resistencia) cliente) cliente
+sumarResistencia resistenciaASumar cliente = (editarResistencia.((+resistenciaASumar)._resistencia)) cliente cliente
 --restarResistencia resistenciaARestar cliente = sumarResistencia (-resistenciaARestar) cliente
-restarResistencia resistenciaARestar = sumarResistencia (-resistenciaARestar)
+--restarResistencia resistenciaARestar = sumarResistencia (-resistenciaARestar)
+--restarResistencia resistenciaARestar = (sumarResistencia.(*(-1))) resistenciaARestar
+restarResistencia = (sumarResistencia.(*(-1)))
 
 --editarResistenciaAAmigos nuevaResistencia amigos = map (editarResistencia nuevaResistencia) amigos 
-editarResistenciaAAmigos nuevaResistencia = map (editarResistencia nuevaResistencia)
-sumarResistenciaAAmigos resistenciaASumar = map (sumarResistencia resistenciaASumar)
-restarResistenciaAAmigos resistenciaARestar = map (restarResistencia resistenciaARestar)
+--editarResistenciaAAmigos nuevaResistencia amigos = map (editarResistencia nuevaResistencia) amigos
+--editarResistenciaAAmigos nuevaResistencia = map (editarResistencia nuevaResistencia)
+editarResistenciaAAmigos nuevaResistencia = (map.editarResistencia) nuevaResistencia
+--sumarResistenciaAAmigos resistenciaASumar amigos = map (sumarResistencia resistenciaASumar) amigos
+--sumarResistenciaAAmigos resistenciaASumar = map (sumarResistencia resistenciaASumar)
+sumarResistenciaAAmigos resistenciaASumar = (map.sumarResistencia) resistenciaASumar
+--restarResistenciaAAmigos resistenciaARestar amigos = map (restarResistencia resistenciaARestar) amigos
+--restarResistenciaAAmigos resistenciaARestar = map (restarResistencia resistenciaARestar)
+restarResistenciaAAmigos resistenciaARestar = (map.restarResistencia) resistenciaARestar
 
 aplicarFuncionAAmigosDeCliente funcion (Cliente nombre resistencia amigos tragosTomados) = Cliente nombre resistencia (funcion amigos) tragosTomados
 --editarResistenciaAAmigosDeCliente nuevaResistencia cliente = aplicarFuncionAAmigosDeCliente (editarResistenciaAAmigos nuevaResistencia) cliente
-editarResistenciaAAmigosDeCliente nuevaResistencia = aplicarFuncionAAmigosDeCliente (editarResistenciaAAmigos nuevaResistencia)
+--editarResistenciaAAmigosDeCliente nuevaResistencia = aplicarFuncionAAmigosDeCliente (editarResistenciaAAmigos nuevaResistencia)
+--editarResistenciaAAmigosDeCliente nuevaResistencia = (aplicarFuncionAAmigosDeCliente.editarResistenciaAAmigos) nuevaResistencia
+editarResistenciaAAmigosDeCliente = (aplicarFuncionAAmigosDeCliente.editarResistenciaAAmigos)
 --sumarResistenciaAAmigosDeCliente resistenciaASumar cliente = aplicarFuncionAAmigosDeCliente (editarResistenciaAAmigos resistenciaASumar) cliente
-sumarResistenciaAAmigosDeCliente resistenciaASumar = aplicarFuncionAAmigosDeCliente (sumarResistenciaAAmigos resistenciaASumar)
+--sumarResistenciaAAmigosDeCliente resistenciaASumar = aplicarFuncionAAmigosDeCliente (sumarResistenciaAAmigos resistenciaASumar)
+--sumarResistenciaAAmigosDeCliente resistenciaASumar = (aplicarFuncionAAmigosDeCliente.sumarResistenciaAAmigos) resistenciaASumar
+sumarResistenciaAAmigosDeCliente = (aplicarFuncionAAmigosDeCliente.sumarResistenciaAAmigos)
 --restarResistenciaAAmigosDeCliente resistenciaARestar cliente = aplicarFuncionAAmigosDeCliente (restarResistenciaAAmigos resistenciaARestar) cliente
-restarResistenciaAAmigosDeCliente resistenciaARestar = aplicarFuncionAAmigosDeCliente (restarResistenciaAAmigos resistenciaARestar)
+--restarResistenciaAAmigosDeCliente resistenciaARestar = aplicarFuncionAAmigosDeCliente (restarResistenciaAAmigos resistenciaARestar)
+--restarResistenciaAAmigosDeCliente resistenciaARestar = (aplicarFuncionAAmigosDeCliente.restarResistenciaAAmigos) resistenciaARestar
+restarResistenciaAAmigosDeCliente = (aplicarFuncionAAmigosDeCliente.restarResistenciaAAmigos)
 
-grogXD cliente = restarResistencia (_resistencia cliente) cliente
-jarraLoca cliente = (((restarResistenciaAAmigosDeCliente 10).(restarResistencia 10)) cliente)
-klusener gusto cliente = restarResistencia (length gusto) cliente 
-tintico cliente = sumarResistencia (5*(length (_amigos cliente))) cliente 
+--grogXD cliente = restarResistencia (_resistencia cliente) cliente
+grogXD cliente = (restarResistencia._resistencia) cliente cliente
+--jarraLoca cliente = ((restarResistenciaAAmigosDeCliente 10).(restarResistencia 10)) cliente
+jarraLoca = ((restarResistenciaAAmigosDeCliente 10).(restarResistencia 10))
+--klusener gusto cliente = restarResistencia (length gusto) cliente 
+--klusener gusto = restarResistencia (length gusto)
+--klusener gusto = (restarResistencia.length) gusto
+klusener = (restarResistencia.length)
+--tintico cliente = sumarResistencia (5*(length (_amigos cliente))) cliente 
+tintico cliente = sumarResistencia ( ((5*).length._amigos) cliente) cliente 
 soda fuerza (Cliente nombre resistencia amigos tragosTomados)  = Cliente (nombrePorSoda fuerza nombre) resistencia amigos tragosTomados
 
 -- agregarTrago solo agrega el trago a la lista de tragosTomados
@@ -96,20 +127,34 @@ tomarTragos tragos cliente = foldr tomarTrago cliente tragos
 dameOtro cliente = head (_tragosTomados cliente) cliente
 
 -- puedeTomar devuelve True si la resistencia luego de tomar el trago es mayor a 0 y sino False
+--puedeTomar trago cliente = (>0).(_resistencia.trago) cliente
 puedeTomar trago = (>0).(_resistencia.trago)
 -- cualesPuedeTomar aplica puede tomar 
-cualesPuedeTomar cliente = map ((flip puedeTomar) cliente)
-cuantasPuedeTomar cliente tragos = length (filter (==True) (cualesPuedeTomar cliente tragos))
+--cualesPuedeTomar cliente tragos = map ((flip puedeTomar) cliente) tragos
+--cualesPuedeTomar cliente = map ((flip puedeTomar) cliente)
+--cualesPuedeTomar cliente = (map.(flip puedeTomar)) cliente
+cualesPuedeTomar = (map.(flip puedeTomar))
+--cuantasPuedeTomar cliente tragos = length (filter (==True) (cualesPuedeTomar cliente tragos))
+--cuantasPuedeTomar cliente tragos = length.(filter (==True)).(cualesPuedeTomar cliente) tragos
+--cuantasPuedeTomar cliente = length.(filter (==True)).(cualesPuedeTomar cliente)
+--cuantasPuedeTomar cliente = (.) (length.(filter (==True))) (cualesPuedeTomar cliente)
+--cuantasPuedeTomar cliente = ((.) (length.(filter (==True))) (cualesPuedeTomar cliente))
+--cuantasPuedeTomar cliente = ((.) (length.(filter (==True))).cualesPuedeTomar) cliente)
+cuantasPuedeTomar = ((.) (length.(filter (==True))).cualesPuedeTomar)
 
 itinerarioMasIntenso itinerario1 itinerario2 | itinerario1 > itinerario2 = itinerario1
     | otherwise = itinerario2
 itinerarioMasIntensoEntreMuchos::[Itinerario]->Itinerario
 --itinerarioMasIntensoEntreMuchos itinerarios = foldr itinerarioMasIntenso itinerarioVacio itinerarios
-itinerarioMasIntensoEntreMuchos = foldr itinerarioMasIntenso itinerarioVacio
+--itinerarioMasIntensoEntreMuchos = foldr itinerarioMasIntenso itinerarioVacio
+itinerarioMasIntensoEntreMuchos = foldr1 itinerarioMasIntenso
 --realizarItinerario itinerario cliente = tomarTragos (_tragos itinerario) cliente
-realizarItinerario itinerario = (tomarTragos._tragos) itinerario
+--realizarItinerario itinerario = (tomarTragos._tragos) itinerario
+realizarItinerario = (tomarTragos._tragos)
 --realizarItinerarioMasIntensoEntreMuchos itinerarios cliente = realizarItinerario (itinerarioMasIntensoEntreMuchos itinerarios) cliente
-realizarItinerarioMasIntensoEntreMuchos itinerarios = realizarItinerario (itinerarioMasIntensoEntreMuchos itinerarios)
+--realizarItinerarioMasIntensoEntreMuchos itinerarios = realizarItinerario (itinerarioMasIntensoEntreMuchos itinerarios)
+--realizarItinerarioMasIntensoEntreMuchos itinerarios = (realizarItinerario.itinerarioMasIntensoEntreMuchos) itinerarios
+realizarItinerarioMasIntensoEntreMuchos = (realizarItinerario.itinerarioMasIntensoEntreMuchos)
 
 -- Funcion rescatarse utilizando guardas
 --rescatarse tiempo cliente 
@@ -253,7 +298,7 @@ Exception: Prelude.head: empty list
 -- _nombre (head (_amigos (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)))
 "Roberto Carlos"
 -- _nombre (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)
-erprodri
+"erprodri"
 -- _resistencia (realizarItinerarioMasIntensoEntreMuchos [salidaDeAmigos, itinerarioBasico, mezclaExplosiva] rodri)
 45
 -- itinerarioMasIntensoEntreMuchos [mezclaExplosiva, itinerarioBasico, salidaDeAmigos]
