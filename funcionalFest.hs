@@ -83,13 +83,16 @@ restarResistencia = (sumarResistencia.(*(-1)))
 --editarResistenciaAAmigos nuevaResistencia amigos = map (editarResistencia nuevaResistencia) amigos 
 --editarResistenciaAAmigos nuevaResistencia amigos = map (editarResistencia nuevaResistencia) amigos
 --editarResistenciaAAmigos nuevaResistencia = map (editarResistencia nuevaResistencia)
-editarResistenciaAAmigos nuevaResistencia = (map.editarResistencia) nuevaResistencia
+--editarResistenciaAAmigos nuevaResistencia = (map.editarResistencia) nuevaResistencia
+editarResistenciaAAmigos = (map.editarResistencia)
 --sumarResistenciaAAmigos resistenciaASumar amigos = map (sumarResistencia resistenciaASumar) amigos
 --sumarResistenciaAAmigos resistenciaASumar = map (sumarResistencia resistenciaASumar)
-sumarResistenciaAAmigos resistenciaASumar = (map.sumarResistencia) resistenciaASumar
+--sumarResistenciaAAmigos resistenciaASumar = (map.sumarResistencia) resistenciaASumar
+sumarResistenciaAAmigos = (map.sumarResistencia)
 --restarResistenciaAAmigos resistenciaARestar amigos = map (restarResistencia resistenciaARestar) amigos
 --restarResistenciaAAmigos resistenciaARestar = map (restarResistencia resistenciaARestar)
-restarResistenciaAAmigos resistenciaARestar = (map.restarResistencia) resistenciaARestar
+--restarResistenciaAAmigos resistenciaARestar = (map.restarResistencia) resistenciaARestar
+restarResistenciaAAmigos = (map.restarResistencia)
 
 aplicarFuncionAAmigosDeCliente funcion (Cliente nombre resistencia amigos tragosTomados) = Cliente nombre resistencia (funcion amigos) tragosTomados
 --editarResistenciaAAmigosDeCliente nuevaResistencia cliente = aplicarFuncionAAmigosDeCliente (editarResistenciaAAmigos nuevaResistencia) cliente
@@ -160,9 +163,16 @@ realizarItinerarioMasIntensoEntreMuchos = (realizarItinerario.itinerarioMasInten
 --rescatarse tiempo cliente 
 --    | tiempo > 3 = sumarResistencia 200 cliente
 --    | otherwise = sumarResistencia 100 cliente
-rescatarse tiempo 
-    | tiempo > 3 = sumarResistencia 200
-    | otherwise = sumarResistencia 100
+--rescatarse tiempo 
+--    | tiempo > 3 = sumarResistencia 200
+--    | otherwise = sumarResistencia 100
+
+-- Funcion rescatarse utilizando max
+--rescatarse tiempo = sumarResistencia ((max 100) ((200*) (((flip (-)) 3) tiempo)))
+--rescatarse tiempo = sumarResistencia (((max 100).(200*).((flip (-)) 3)) tiempo)
+--rescatarse tiempo = (sumarResistencia.(max 100).(200*).((flip (-)) 3)) tiempo
+rescatarse = (sumarResistencia.(max 100).(200*).((flip (-)) 3))
+--Nota: el flip (-) es necesario porque (-3) es el numero -3
 
 
 -- Point Free: consultaItinerario1 cliente = klusener "Huevo" (rescatarse 2 (klusener "Chocolate" (jarraLoca cliente))) 
